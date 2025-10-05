@@ -7,8 +7,8 @@ on:
     branches:
       - main
 
-  env:
-    SECRET_NAME: "soat/db/database_url"
+env:
+  SECRET_NAME: "soat/db/database_url"
 
 permissions:
   id-token: write
