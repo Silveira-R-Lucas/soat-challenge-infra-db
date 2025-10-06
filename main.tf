@@ -1,10 +1,9 @@
-
 terraform {
   backend "s3" {
     bucket         = "soat-challenge-bucket"
     key            = "soat/challenge/database/terraform.tfstate"
-    region         = "sa-east-1"                       
-    dynamodb_table = "terraform-db-state-lock"                  
+    region         = "sa-east-1"
+    dynamodb_table = "terraform-db-state-lock"
   }
 
   required_providers {
@@ -21,12 +20,15 @@ provider "aws" {
 
 resource "aws_db_instance" "soat_db" {
   identifier           = var.db_name
-  allocated_storage    = 50
-  engine               = "postgres"                        
+  allocated_storage    = 20
+  engine               = "postgres"
   instance_class       = var.db_instance_class
-  db_name              = "soatdb_pg"                
+  db_name              = "soatdb_pg"
   username             = var.db_username
   password             = var.db_password
   skip_final_snapshot  = true
-  publicly_accessible  = true                      
+
+  publicly_accessible  = false
+  db_subnet_group_name = aws_db_subnet_group.soat_db.name
+  vpc_security_group_ids = [aws_security_group.rds.id]
 }
