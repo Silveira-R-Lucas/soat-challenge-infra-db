@@ -20,7 +20,7 @@ provider "aws" {
 
 resource "aws_db_instance" "soat_db" {
   identifier           = var.db_name
-  allocated_storage    = 20
+  allocated_storage    = 50
   engine               = "postgres"
   instance_class       = var.db_instance_class
   db_name              = "soatdb_pg"
