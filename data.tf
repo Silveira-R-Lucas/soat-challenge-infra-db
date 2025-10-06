@@ -15,13 +15,9 @@ data "aws_subnets" "private" {
   }
 }
 
-data "aws_security_group" "eks_cluster" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.soat_challenge.id]
-  }
-
+data "aws_security_group" "eks_nodes" {
+  vpc_id = data.aws_vpc.soat_challenge.id
   tags = {
-    "eks:cluster-name" = "soat-challenge-cluster"
+    "Name" = "soat-challenge-cluster-node"
   }
 }
