@@ -9,15 +9,14 @@ resource "aws_db_subnet_group" "soat_db" {
 
 resource "aws_security_group" "rds" {
   name        = "soat-db-sg"
-  description = "Permite a conexão do cluster EKS com o RDS"
+  description = "Permite a conexao do cluster EKS com o RDS" # Descrição sem caracteres especiais
   vpc_id      = data.aws_vpc.soat_challenge.id
 
   ingress {
-    description     = "Permite PostgreSQL vindo dos nós do EKS"
+    description     = "Permite PostgreSQL vindo dos nos do EKS"
     from_port       = 5432
     to_port         = 5432
     protocol        = "tcp"
-    
     security_groups = [data.aws_security_group.eks_nodes.id]
   }
 
