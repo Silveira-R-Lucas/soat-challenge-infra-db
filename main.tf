@@ -20,7 +20,6 @@ provider "aws" {
 }
 
 resource "aws_db_instance" "soat_db" {
-  region               = "sa-east-1" 
   identifier           = var.db_name
   allocated_storage    = 50
   engine               = "postgres"                        

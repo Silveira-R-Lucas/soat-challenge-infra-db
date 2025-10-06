@@ -13,7 +13,7 @@ variable "db_instance_class" {
 variable "aws_region" {
   description = "A região da AWS onde os recursos serão criados."
   type        = string
-  default     = "us-east-1"
+  default     = "sa-east-1"
 }
 
 variable "db_username" {
