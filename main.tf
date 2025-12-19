@@ -32,3 +32,20 @@ resource "aws_db_instance" "soat_db" {
   db_subnet_group_name = aws_db_subnet_group.soat_db.name
   vpc_security_group_ids = [aws_security_group.rds.id]
 }
+
+module "redis" {
+  source            = "./modules/redis"
+  private_subnets   = data.aws_subnets.private.ids
+  node_type         = var.redis_node_type
+  port              = var.redis_port
+  security_group_id = aws_security_group.redis_sg.id
+}
+
+module "mongo" {
+  source            = "./modules/mongo"
+  private_subnets   = data.aws_subnets.private.ids
+  username          = var.mongo_username
+  password          = var.mongo_password
+  security_group_id = aws_security_group.mongo_sg.id
+  vpc_id          = var.vpc_id
+}

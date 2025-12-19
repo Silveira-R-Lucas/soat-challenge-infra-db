@@ -28,3 +28,22 @@ variable "db_password" {
   type        = string
   sensitive   = true
 }
+
+variable "redis_node_type" {
+  default = "cache.t3.micro"
+}
+
+variable "redis_port" {
+  default = 6379
+}
+
+variable "mongo_username" {}
+
+variable "mongo_password" {
+  sensitive = true
+}
+
+variable "vpc_id" {
+  type        = string
+  description = "VPC onde ficam os bancos"
+}
