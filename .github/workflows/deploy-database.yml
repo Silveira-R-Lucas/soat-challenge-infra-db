@@ -44,13 +44,18 @@ jobs:
         run: terraform plan -input=false
         env:
           TF_VAR_db_password: ${{ secrets.TF_VAR_db_password }}
+          TF_VAR_mongo_username: ${{ secrets.TF_VAR_MONGO_USERNAME }}
+          TF_VAR_mongo_password: ${{ secrets.TF_VAR_MONGO_PASSWORD }}
+          TF_VAR_vpc_id: ${{ secrets.TF_VAR_VPC_ID }}
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -auto-approve -input=false
-        
+        run: terraform apply -auto-approve -input=false    
         env:
           TF_VAR_db_password: ${{ secrets.TF_VAR_db_password }}
+          TF_VAR_mongo_username: ${{ secrets.TF_VAR_MONGO_USERNAME }}
+          TF_VAR_mongo_password: ${{ secrets.TF_VAR_mongo_password }}
+          TF_VAR_vpc_id: ${{ secrets.TF_VAR_VPC_ID }}
       
       - name: Get Terraform Outputs and Save to Secrets Manager
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
