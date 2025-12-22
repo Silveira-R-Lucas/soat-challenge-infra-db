@@ -7,6 +7,6 @@ output "port" {
 }
 
 output "mongodb_username" {
-  value     = aws_docdb_cluster.mongodb.master_username
+  value     = aws_docdb_cluster.this.master_username
   sensitive = true
 }
