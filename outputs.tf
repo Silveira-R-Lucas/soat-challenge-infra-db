@@ -43,4 +43,5 @@ output "mongo_port" {
 
 output "mongodb_username" {
   value     = module.mongo.mongodb_username
+  sensitive = true
 }
