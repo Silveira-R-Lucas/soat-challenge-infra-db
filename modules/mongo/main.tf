@@ -8,13 +8,14 @@ resource "aws_docdb_subnet_group" "this" {
 }
 
 resource "aws_docdb_cluster" "this" {
-  cluster_identifier      = "soat-mongo"
-  engine                  = "docdb"
-  master_username         = var.username
-  master_password         = var.password
-  skip_final_snapshot     = true
-  db_subnet_group_name    = aws_docdb_subnet_group.this.name
-  vpc_security_group_ids  = [ var.vpc_security_group_id ]
+  cluster_identifier                = "soat-mongo"
+  engine                            = "docdb"
+  master_username                   = var.username
+  master_password                   = var.password
+  skip_final_snapshot               = true
+  db_subnet_group_name              = aws_docdb_subnet_group.this.name
+  vpc_security_group_ids            = [ var.vpc_security_group_id ]
+  enabled_cloudwatch_logs_exports   = ["audit"]
 }
 
 resource "aws_docdb_cluster_instance" "this" {
