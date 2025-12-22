@@ -24,3 +24,24 @@ output "db_password" {
   value       = aws_db_instance.soat_db.password
   sensitive   = true
 }
+
+output "redis_endpoint" {
+  value = module.redis.endpoint
+}
+
+output "redis_port" {
+  value = module.redis.port
+}
+
+output "mongo_endpoint" {
+  value = module.mongo.endpoint
+}
+
+output "mongo_port" {
+  value = module.mongo.port
+}
+
+output "mongodb_username" {
+  value     = module.mongo.mongodb_username
+  sensitive = true
+}
