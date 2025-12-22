@@ -12,3 +12,7 @@ variable "vpc_id" {
   type        = string
   description = "VPC onde o Mongo será criado"
 }
+
+variable "vpc_security_group_id" {
+  type        = string
+}

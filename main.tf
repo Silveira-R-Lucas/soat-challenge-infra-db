@@ -42,10 +42,11 @@ module "redis" {
 }
 
 module "mongo" {
-  source            = "./modules/mongo"
-  private_subnets   = data.aws_subnets.private.ids
-  username          = var.mongo_username
-  password          = var.mongo_password
-  security_group_id = aws_security_group.mongo_sg.id
-  vpc_id            = data.aws_vpc.soat_challenge.id
+  source                  = "./modules/mongo"
+  private_subnets         = data.aws_subnets.private.ids
+  username                = var.mongo_username
+  password                = var.mongo_password
+  security_group_id       = aws_security_group.mongo_sg.id
+  vpc_id                  = data.aws_vpc.soat_challenge.id
+  vpc_security_group_id  = aws_security_group.mongo_sg.id
 }
