@@ -47,5 +47,5 @@ module "mongo" {
   username          = var.mongo_username
   password          = var.mongo_password
   security_group_id = aws_security_group.mongo_sg.id
-  vpc_id          = var.vpc_id
+  vpc_id            = data.aws_vpc.soat_challenge.id
 }

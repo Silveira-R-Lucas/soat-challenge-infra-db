@@ -55,7 +55,7 @@ resource "aws_security_group" "redis_sg" {
 resource "aws_security_group" "mongo_sg" {
   name        = "soat-mongo-sg"
   description = "Permite a conexao do cluster EKS com o Mongo"
-  vpc_id = var.vpc_id
+  vpc_id = data.aws_vpc.soat_challenge.id
 
   ingress {
     from_port       = 27017

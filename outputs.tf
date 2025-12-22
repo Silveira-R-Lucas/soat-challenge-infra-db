@@ -41,6 +41,6 @@ output "mongo_port" {
   value = module.mongo.port
 }
 
-output "debug_private_subnets" {
-  value = data.aws_subnets.private.ids
+output "mongodb_username" {
+  value     = module.mongo.master_username
 }

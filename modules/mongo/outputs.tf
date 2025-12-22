@@ -6,6 +6,7 @@ output "port" {
   value = 27017
 }
 
-output "debug_private_subnets_inside_module" {
-  value = var.private_subnets
+output "mongodb_username" {
+  value     = aws_docdb_cluster.mongodb.master_username
+  sensitive = true
 }

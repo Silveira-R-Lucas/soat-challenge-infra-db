@@ -46,7 +46,6 @@ jobs:
           TF_VAR_db_password: ${{ secrets.TF_VAR_db_password }}
           TF_VAR_mongo_username: ${{ secrets.TF_VAR_MONGO_USERNAME }}
           TF_VAR_mongo_password: ${{ secrets.TF_VAR_MONGO_PASSWORD }}
-          TF_VAR_vpc_id: ${{ secrets.TF_VAR_VPC_ID }}
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -55,11 +54,25 @@ jobs:
           TF_VAR_db_password: ${{ secrets.TF_VAR_db_password }}
           TF_VAR_mongo_username: ${{ secrets.TF_VAR_MONGO_USERNAME }}
           TF_VAR_mongo_password: ${{ secrets.TF_VAR_mongo_password }}
-          TF_VAR_vpc_id: ${{ secrets.TF_VAR_VPC_ID }}
       
       - name: Get Terraform Outputs and Save to Secrets Manager
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
+          upsert_secret() {
+            local secret_id=$1
+            local secret_value=$2
+            
+            echo "A processar segredo: $secret_id"
+            
+            if aws secretsmanager describe-secret --secret-id "$secret_id" > /dev/null 2>&1; then
+              echo "Segredo existe. A atualizar valor..."
+              aws secretsmanager put-secret-value --secret-id "$secret_id" --secret-string "$secret_value"
+            else
+              echo "Segredo não existe. A criar novo..."
+              aws secretsmanager create-secret --name "$secret_id" --secret-string "$secret_value" --description "Gerado automaticamente pelo pipeline infra-db"
+            fi
+          }
+        
           DB_HOSTNAME=$(terraform output -raw db_hostname)
           DB_PORT=$(terraform output -raw db_port)
           DB_USERNAME=$(terraform output -raw db_username)
@@ -67,24 +80,16 @@ jobs:
           DB_NAME=$(terraform output -raw db_name_output)
           DATABASE_URL="postgresql://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOSTNAME}:${DB_PORT}/${DB_NAME}"
 
-          REDIS_HOST=$(terraform output -raw redis_endpoint)
-          REDIS_PORT=$(terraform output -raw redis_port)
+          REDIS_HOSTNAME=$(terraform output -raw redis_endpoint)
+          REDIS_URL="redis://${REDIS_HOSTNAME}:6379"
 
-          MONGO_HOST=$(terraform output -raw mongo_endpoint)
-          MONGO_PORT=$(terraform output -raw mongo_port)
+          MONGO_HOSTNAME=$(terraform output -raw mongodb_endpoint)
+          MONGO_USER=$(terraform output -raw mongodb_username)
+          MONGO_PASS="${{ secrets.TF_VAR_docdb_password }}"
+          MONGODB_URL="mongodb://${MONGO_USER}:${MONGO_PASS}@${MONGO_HOSTNAME}:27017/?tls=true&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
 
-          aws secretsmanager put-secret-value \
-            --secret-id ${{ env.DB_SECRET_NAME }} \
-            --secret-string "{
-              \"POSTGRES_HOST\":\"$DB_HOSTNAME\",
-              \"POSTGRES_PORT\":\"$DB_PORT\",
-              \"POSTGRES_USER\":\"$DB_USERNAME\",
-              \"POSTGRES_PASSWORD\":\"$DB_PASSWORD\",
-              \"DATABASE_URL\":\"$DATABASE_URL\",
-              \"REDIS_HOST\":\"$REDIS_HOST\",
-              \"REDIS_PORT\":\"$REDIS_PORT\",
-              \"MONGO_HOST\":\"$MONGO_HOST\",
-              \"MONGO_PORT\":\"$MONGO_PORT\",
-              \"MONGO_USER\":\"$TF_VAR_mongo_username\",
-              \"MONGO_PASSWORD\":\"$TF_VAR_mongo_password\"
-            }"
+          upsert_secret "soat/db/database_url" "$DATABASE_URL"
+
+          upsert_secret "soat/db/database_url" "$DATABASE_URL"
+          upsert_secret "soat/db/redis_url" "$REDIS_URL"
+          upsert_secret "soat/db/mongodb_url" "$MONGODB_URL"

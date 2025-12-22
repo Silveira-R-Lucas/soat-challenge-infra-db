@@ -42,8 +42,3 @@ variable "mongo_username" {}
 variable "mongo_password" {
   sensitive = true
 }
-
-variable "vpc_id" {
-  type        = string
-  description = "VPC onde ficam os bancos"
-}

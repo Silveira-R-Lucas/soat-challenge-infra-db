@@ -7,12 +7,12 @@ data "aws_vpc" "soat_challenge" {
 data "aws_subnets" "private" {
   filter {
     name   = "vpc-id"
-    values = [var.vpc_id]
+    values = [data.aws_vpc.soat_challenge.id]
   }
-}
 
-data "aws_vpc" "main" {
-  id = var.vpc_id
+  tags = {
+    "kubernetes.io/role/internal-elb" = "1"
+  }
 }
 
 data "aws_security_group" "eks_nodes" {

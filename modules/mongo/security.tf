@@ -1,6 +1,6 @@
 resource "aws_security_group" "mongo_sg" {
   name   = "soat-mongo-sg"
-  vpc_id = var.vpc_id
+  vpc_id = data.aws_vpc.soat_challenge.id
 
   ingress {
     from_port   = 27017
