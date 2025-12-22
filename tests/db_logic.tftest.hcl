@@ -25,12 +25,12 @@ run "verify_security_groups" {
   command = plan
 
   assert {
-    condition     = aws_security_group.rds.ingress[0].from_port == 5432
+    condition     = one(aws_security_group.rds.ingress).from_port == 5432
     error_message = "A porta de entrada do RDS deve ser 5432."
   }
 
   assert {
-    condition     = aws_security_group.mongo_sg.ingress[0].from_port == 27017
+    condition     = one(aws_security_group.mongo_sg.ingress).from_port == 27017
     error_message = "A porta de entrada do MongoDB deve ser 27017."
   }
 }
