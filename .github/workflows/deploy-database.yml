@@ -23,7 +23,7 @@ jobs:
       - name: Checkout do código
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  
+          fetch-depth: 0
 
       - name: Checkov Scan
         uses: bridgecrewio/checkov-action@master
@@ -33,27 +33,11 @@ jobs:
           check: CKV_AWS_118,CKV_AWS_16
           soft_fail: true
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Terraform Validate
-        run: terraform validate
-
-      - name: Terraform Test
-        run: terraform test
-        env:
-          TF_VAR_db_password: ${{ secrets.TF_VAR_db_password }}
-          TF_VAR_mongo_username: ${{ secrets.TF_VAR_MONGO_USERNAME }}
-          TF_VAR_mongo_password: ${{ secrets.TF_VAR_mongo_password }}
-
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} 
         with:
           args: >
             -Dsonar.verbose=true
@@ -87,6 +71,16 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Test
+        run: terraform test
+        env:
+          TF_VAR_db_password: ${{ secrets.TF_VAR_db_password }}
+          TF_VAR_mongo_username: ${{ secrets.TF_VAR_MONGO_USERNAME }}
+          TF_VAR_mongo_password: ${{ secrets.TF_VAR_mongo_password }}
 
       - name: Terraform Plan
         if: github.event_name == 'pull_request'
