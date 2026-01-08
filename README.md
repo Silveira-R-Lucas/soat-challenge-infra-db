@@ -1,34 +1,64 @@
-# SOAT - Infraestrutura do Banco de Dados (infra-db)
+# SOAT - Infraestrutura de Base de Dados (infra-db) - Fase 04
+Este repositório é dedicado exclusivamente ao provisionamento e gestão da infraestrutura de persistência de dados poliglota do projeto utilizando Terraform. Na Fase 4, a infraestrutura foi expandida para suportar as necessidades específicas de cada microsserviço (Relacional, NoSQL e Cache).
 
-Este repositório é dedicado exclusivamente ao gerenciamento da infraestrutura do banco de dados do projeto, utilizando Terraform.
+## 🚀 Evoluções da Fase 04
+Persistência Poliglota: Provisionamento de três motores de base de dados distintos:
 
----
+PostgreSQL (AWS RDS): Para o serviço de pedidos, garantindo integridade ACID.
 
-### Função no Projeto
+Redis (AWS ElastiCache): Para gestão de estado em tempo real no serviço de cozinha.
 
-A principal responsabilidade deste repositório é provisionar um banco de dados PostgreSQL gerenciado (AWS RDS) de forma segura e isolada.
+MongoDB (AWS DocumentDB): Para o serviço de pagamentos, oferecendo esquemas flexíveis.
 
-**Dependência Crítica:** Este projeto **depende** da infraestrutura de rede (VPC, sub-redes, etc.) criada pelo repositório `soat-challenge-infra-k8s`. Ele deve ser executado **após** a criação da VPC.
+Construção Automática de URLs: O pipeline agora gera e injeta URLs de conexão completas diretamente no AWS Secrets Manager, facilitando o consumo pelas aplicações.
 
-### Recursos Provisionados
+Qualidade e Segurança: Integração com SonarCloud e Checkov para garantir que a infraestrutura de dados siga as melhores práticas de segurança.
 
-* **AWS RDS:** Uma instância de banco de dados PostgreSQL gerenciada. A instância é configurada para não ser acessível publicamente (`publicly_accessible = false`).
-* **DB Subnet Group:** Agrupa as sub-redes privadas da VPC onde o banco de dados será executado, garantindo alta disponibilidade.
-* **Security Group:** Cria um Security Group (`soat-db-sg`) que permite tráfego de entrada na porta `5432` (PostgreSQL) **apenas** a partir do Security Group dos nós do EKS, garantindo comunicação segura e privada.
+## 🏗️ Recursos Provisionados
+AWS RDS (PostgreSQL): Instância gerida e configurada como não acessível publicamente para maior segurança.
 
-### Pré-requisitos
+AWS ElastiCache (Redis): Cluster de nó único para processamento de filas e cache de alta performance.
 
-1.  **Conta AWS** e **Terraform** instalados.
-2.  **Infraestrutura de Rede Existente:** A VPC (`soat-challenge-vpc`) e o Security Group do EKS (`soat-challenge-cluster-node`) devem ter sido criados previamente pelo projeto `infra-k8s`.
-3.  **GitHub Secrets:**
-    * `AWS_ACCESS_KEY_ID`
-    * `AWS_SECRET_ACCESS_KEY`
-    * `TF_VAR_db_password`: A senha a ser usada para o usuário master do banco de dados.
+AWS DocumentDB (MongoDB): Cluster NoSQL compatível com MongoDB para armazenamento de transações de pagamento.
 
-### Como Utilizar
+Grupos de Segurança (Security Groups): Configuração de regras de entrada que permitem conexões apenas a partir dos nós do cluster EKS nas portas correspondentes (5432, 6379, 27017).
 
-O deploy é automatizado via GitHub Actions.
+## 🛡️ Qualidade e CI/CD
+O pipeline de CI/CD no GitHub Actions automatiza o ciclo de vida dos dados:
 
-1.  **Alterações:** Faça as alterações de configuração do banco de dados (ex: tipo de instância) em uma branch e abra um Pull Request.
-2.  **Merge:** Após o merge na `main`, o pipeline `deploy-database.yml` é acionado.
-3.  **Deploy e Atualização do Segredo:** O workflow executa `terraform apply` e, em seguida, um passo crucial: ele extrai as saídas do Terraform (endpoint, porta, usuário, etc.) e constrói a `DATABASE_URL` completa. Por fim, ele atualiza o segredo `soat/db/database_url` no AWS Secrets Manager com essa nova URL. Isso garante que a aplicação Rails sempre tenha a string de conexão mais recente.
+Checkov Scan: Validação de segurança para evitar exposições de portas ou falta de encriptação em repouso.
+
+SonarCloud Scan: Análise estática do código Terraform para garantir manutenibilidade.
+
+Terraform Test: Execução de testes automatizados (db_logic.tftest.hcl) para validar se os bancos são criados como privados e com os motores correctos.
+
+## ⚙️ Gestão de Segredos (AWS Secrets Manager)
+Após o sucesso do apply, o pipeline atualiza automaticamente os seguintes segredos no Secrets Manager:
+
+soat/db/database_url: URL de conexão PostgreSQL.
+
+soat/db/redis_url: URL de conexão Redis.
+
+soat/db/mongodb_url: URL de conexão MongoDB.
+
+## 📋 Pré-requisitos e Dependências
+Dependência Crítica: Este projeto depende da infraestrutura de rede (VPC e sub-redes) e do Security Group dos nós criado pelo repositório soat-challenge-infra-k8s.
+
+GitHub Secrets Necessários:
+
+AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY
+
+TF_VAR_db_password: Senha master do RDS.
+
+TF_VAR_MONGO_USERNAME / TF_VAR_MONGO_PASSWORD: Credenciais do DocumentDB.
+
+SONAR_TOKEN: Para integração com SonarCloud.
+
+## 🛠️ Como Utilizar
+Garanta que o repositório infra-k8s já foi aplicado com sucesso.
+
+Abra um Pull Request para a branch main para visualizar o terraform plan.
+
+Após o merge, o pipeline executará o terraform apply e atualizará as strings de conexão no Secrets Manager.
+
+Os microsserviços consumirão essas URLs automaticamente no próximo deploy ou reinício.
